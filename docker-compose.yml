@@ -1,0 +1,40 @@
+services:
+  api:
+    platform: linux/amd4
+    container_name: ecommerce
+    env_file:
+      - docker.env
+    image: "ecommerce"
+    build: .
+    tty: true
+    volumes:
+      - .:/project
+    expose:
+      - "7071"
+    ports:
+      - 0.0.0.0:8000:8000
+    depends_on:
+      - db
+
+  db:
+    image: mongo:7.0
+    container_name: ecommerce-mongodb
+    restart: unless-stopped
+    command: mongo --auth
+    env_file:
+      - "docker.env"
+    expose:
+      - "27017"
+    ports:
+      - 0.0.0.0:27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+      - MONGODB_DATA_DIR=/data/db
+      - MONGODB_LOG_DIR=/dev/null
+    volumes:
+      - mongodbdata:/data/db  
+
+volumes:
+  mongodbdata:
