@@ -3,7 +3,7 @@ services:
     platform: linux/amd4
     container_name: ecommerce
     env_file:
-      - docker.env
+      - .env
     image: "ecommerce"
     build: .
     tty: true
@@ -17,24 +17,17 @@ services:
       - db
 
   db:
-    image: mongo:7.0
-    container_name: ecommerce-mongodb
-    restart: unless-stopped
-    command: mongo --auth
-    env_file:
-      - "docker.env"
-    expose:
-      - "27017"
+    image: postgres:15 # Use the desired PostgreSQL version
+    container_name: postgres-db
+    restart: always
     ports:
-      - 0.0.0.0:27017:27017
+      - "5432:5432" # Map host port to container port
     environment:
-      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
-      - MONGODB_DATA_DIR=/data/db
-      - MONGODB_LOG_DIR=/dev/null
+      POSTGRES_USER: myuser          # Set PostgreSQL username
+      POSTGRES_PASSWORD: mypassword  # Set PostgreSQL password
+      POSTGRES_DB: mydatabase        # Set PostgreSQL database name
     volumes:
-      - mongodbdata:/data/db  
+      - postgres-data:/var/lib/postgresql/data  
 
 volumes:
-  mongodbdata:
+  postgres-data:
