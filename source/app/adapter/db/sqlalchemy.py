@@ -1,7 +1,20 @@
+import contextlib
 from typing import Optional, List
+import logging
+from psycopg2.errors import UniqueViolation
+from sqlalchemy import text, create_engine
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from source.app.config import DB_SQL_LOGGING
 from source.app.ports.db.adapter import DbAdapter
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, sessionmaker
+from source.app.ports.db.adapter import DbAdapterException
+
+from .exception import DbIntegrityError, UniqueConstraintViolation
+
+class SessionNotInitialised(DbAdapterException):
+    pass
+
+logger = logging.getLogger(__name__)
 
 
 
@@ -25,3 +38,62 @@ class SQLAlchemyAdapter(DbAdapter):
         )    
         self.engine = self.create_engine()
         self._sessions: List[Session] = []
+
+    @property
+    def session(self) -> Session:
+        if not self._sessions:
+            raise SessionNotInitialised
+        return self._sessions[-1] 
+    
+    def destroy_db(self):
+        from .model.base import Base
+
+        logger.info("Dropping databse tables from models")
+        Base.metadata.drop_all(bind=self.engine)
+
+        with self.engine.connect() as con:
+            con.execute(text("DROP IF TABLE EXISTS alembic_version"))
+            con.commit()
+
+    def init_db(self):
+        from .model.base import Base
+        Base.metadata.drop_all(bind=self.engine)
+        Base.metadata.create_all(bind=self.engine)
+
+    def create_engine(self):
+        logger.debug("Setting up a new database engine")
+        engine = create_engine(self.database_uri, **self.engine_args)
+
+        return engine
+
+    def session_maker(self):
+        logger.debug("Setting up a new local session")
+        engine = self.session_args["bind"]
+        if not engine:
+            engine = self.engine
+        return sessionmaker(bind=engine, **self.engine_args)
+
+    @contextlib.contextmanager
+    def transaction(self):
+        try:
+            Session = self.session_maker()
+            with Session() as session:
+                self._sessions.append(session)    
+            try:
+                yield session
+                session.commit
+            finally:
+                self._sessions.pop()
+        except (IntegrityError, UniqueViolation) as err:
+            raise UniqueConstraintViolation(str(err))
+        except SQLAlchemyError as err:
+            raise DbIntegrityError(str(err))
+        
+    def rollback(self):
+        """
+        
+        Rollback or undo unchanges from transaction.
+        """
+        self.session.rollback()
+
+            

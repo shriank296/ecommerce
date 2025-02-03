@@ -22,6 +22,10 @@ db_migrate:
 db_upgrade:
 	${DOCKER_COMMAND} run ${API_NAME} bash -c "alembic upgrade head"
 
+down:
+	${DOCKER_COMMAND} down 
+
+
 
 
 
