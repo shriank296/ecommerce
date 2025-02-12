@@ -4,6 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from source.app.adapter.db.model.base import Base
+from source.app.adapter.db.repository import SQLRepository
 
 
 class CartItem(Base):
@@ -12,3 +13,7 @@ class CartItem(Base):
     quantity: Mapped[int] = mapped_column(Integer, nullable=False)
     cart = relationship("Cart", back_populates="cart_items")
     product = relationship("Product", back_populates="cart_items")
+
+
+class SQLCartItemRepository(SQLRepository):
+    model = CartItem

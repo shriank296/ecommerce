@@ -9,8 +9,6 @@ services:
     tty: true
     volumes:
       - .:/project
-    # expose:
-    #   - "7071"
     ports:
       - 0.0.0.0:8000:8000
     # command: bash -c "uvicorn source.app.adapter.fastapi.main:app --reload --log-level debug"  

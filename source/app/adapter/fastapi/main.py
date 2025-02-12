@@ -1,5 +1,4 @@
 from fastapi import FastAPI
-from source.app.adapter.db.database import engine
 from source.app.adapter.db.model import Base, Cart, CartItem, Category, Order, OrderItem, Product, User
 
 app = FastAPI(title="Ecommerce app")

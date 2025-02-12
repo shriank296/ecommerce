@@ -3,6 +3,9 @@ from sqlalchemy import String, DateTime, Enum as SQLAlchemyEnum, func
 from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSON
+
+from source.app.adapter.db.repository import SQLRepository
+from source.app.domain.user_dto import UserDTO
 from .base import Base
 import bcrypt
 
@@ -36,6 +39,11 @@ class User(Base):
 
     def verify_password(self, raw_password: str) -> bool:
         return bcrypt.checkpw(raw_password.encode("utf-8"), self._password.encode("utf-8"))
+    
+
+class SQLUserRepository(SQLRepository):
+    model = User
+    model_dto = UserDTO
 
 
         

@@ -3,3 +3,9 @@ class UniqueConstraintViolation(Exception):
 
 class DbIntegrityError(Exception):
     pass
+
+class DbException(Exception):
+    pass
+
+class RecordNotFound(DbException):
+    pass
