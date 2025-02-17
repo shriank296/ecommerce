@@ -5,7 +5,7 @@ build:
 	${DOCKER_COMMAND} build
 
 dev:
-	${DOCKER_COMMAND} run --service-ports api
+	env $(grep -v '^\s*#' docker.env | xargs) ${DOCKER_COMMAND} run --service-ports api
 
 run_local:
 	uvicorn source.app.adapter.fastapi.main:app --reload --log-level debug	
@@ -23,7 +23,11 @@ db_upgrade:
 	${DOCKER_COMMAND} run ${API_NAME} bash -c "alembic upgrade head"
 
 down:
-	${DOCKER_COMMAND} down 
+	${DOCKER_COMMAND} down
+
+history:
+	${DOCKER_COMMAND} run ${API_NAME} bash -c "alembic history"
+
 
 
 

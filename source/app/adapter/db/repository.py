@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Any, Optional, Type, TypeVar
 import logging
 from uuid import UUID
@@ -30,7 +31,8 @@ class SQLRepository(Repository):
     def model_to_dto(self, db_object):
         if isinstance(db_object, row.Row):
             return self.model_dto(**db_object._mapping)
-        return self.model_dto(**db_object.__dict__)
+        # return self.model_dto(**db_object.__dict__)
+        return self.model_dto.model_validate(db_object)
     
     def get_query(self) -> Query:
         return self.db.session.query(self.model)
@@ -41,8 +43,7 @@ class SQLRepository(Repository):
         raise NotImplementedError(f"Query fields: {fields} not implemented")
 
     def create(self, obj_in: Any):
-        self.validate_data(obj_in=obj_in)
-
+        self.validate_obj(obj_in=obj_in)
         db_obj = self.model(**obj_in.model_dump())
         try:
             self.db.session.add(db_obj)

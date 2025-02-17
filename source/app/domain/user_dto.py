@@ -1,10 +1,10 @@
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 from uuid import UUID
 from datetime import datetime
 from typing import Optional
 
 class BaseDto(BaseModel):
-    model_config = ConfigDict(from_attributes=True)
+    model_config = ConfigDict(from_attributes=True, allow_population_by_field_name = True, orm_mode = True)
 
 class BaseUserDTO(BaseDto):
     first_name: str
@@ -15,12 +15,12 @@ class BaseUserDTO(BaseDto):
     role: str
 
 class UserDTO(BaseUserDTO):
-    user_id: UUID    
+    user_id: UUID = Field(..., alias='id')
     created_at: datetime
     updated_at: datetime
 
 class CreateUserDTO(BaseUserDTO):
-    _passowrd: str
+    password: str
 
 
 

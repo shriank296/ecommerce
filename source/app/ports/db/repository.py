@@ -8,6 +8,12 @@ from pydantic import BaseModel
 
 ModelDTO = TypeVar("ModelDTO", bound=BaseModel)
 
+class PaginatedData(BaseModel):
+    results: Any = None,
+    total: int = 0
+    page_size: int = 100
+    page_number: int = 1
+
 class Repository(ABC):
     def __init__(self, db: Optional[DbAdapter] = None):
         self.db = db

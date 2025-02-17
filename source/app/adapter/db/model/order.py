@@ -19,5 +19,5 @@ class Order(Base):
     shipping_address: Mapped[dict] = mapped_column(JSON)
     placed_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(), nullable=False)
     updated_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(),onupdate=func.now(), nullable=False)
-    user = relationship("Order", back_populates="users")
+    user = relationship("User", back_populates="orders")
     order_items = relationship("OrderItem", back_populates="order", cascade="all,delete", lazy="select")

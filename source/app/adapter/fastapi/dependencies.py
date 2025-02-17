@@ -1,9 +1,9 @@
 from collections.abc import Generator
 
-from app.ports.db import DbAdapter, Repository, Repositories
-from app.adapter.db import SQLAlchemyAdapter, SQLRepositories
+from source.app.ports.db import DbAdapter, Repository, Repositories
+from source.app.adapter.db import SQLAlchemyAdapter, SQLRepositories
 
-from app.config import DB_URL
+from source.app.config import DB_URL
 
 def get_db() -> Generator[DbAdapter, None, None]:
     adapter = SQLAlchemyAdapter(DB_URL)

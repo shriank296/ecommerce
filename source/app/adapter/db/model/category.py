@@ -3,7 +3,7 @@ import uuid
 from typing import Optional
 from sqlalchemy import String, ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from .base import Base
+from source.app.adapter.db.model.base import Base
 from sqlalchemy.dialects.postgresql import UUID
 
 class Category(Base):
@@ -13,4 +13,4 @@ class Category(Base):
     updated_at: Mapped[DateTime] = mapped_column(DateTime, default=func.now(),onupdate=func.now(), nullable=False)
     products = relationship("Product", back_populates="category", cascade="all,delete", lazy="select")
     child_categories: Mapped[list["Category"]] = relationship("Category", back_populates="parent_category", cascade="all,delete", lazy="select")
-    parent_category: Mapped[Optional["Category"]] = relationship("Category", back_populates="child-categories")
+    parent_category: Mapped[Optional["Category"]] = relationship("Category", back_populates="child_categories",remote_side="Category.id")

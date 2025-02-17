@@ -1,6 +1,6 @@
 from typing import Optional, cast
 
-from app.ports.db import DbAdapter, Repository, Repositories
+from source.app.ports.db import DbAdapter, Repository, Repositories
 from source.app.adapter.db.model.user import SQLUserRepository
 from .sqlalchemy import SQLAlchemyAdapter
 

@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class SQLAlchemyAdapter(DbAdapter):
     def __init__(self,database_uri: str, engine_args: Optional[dict]=None, session_args: Optional[dict]= None):
-        assert self.database_uri, "databse uri must not be an empty string"
+        assert database_uri, "databse uri must not be an empty string"
         self.database_uri = database_uri
         self.engine_args = engine_args or dict(
             pool_pre_ping = True,
@@ -68,10 +68,10 @@ class SQLAlchemyAdapter(DbAdapter):
 
     def session_maker(self):
         logger.debug("Setting up a new local session")
-        engine = self.session_args["bind"]
+        engine = self.session_args.get("bind")
         if not engine:
             engine = self.engine
-        return sessionmaker(bind=engine, **self.engine_args)
+        return sessionmaker(bind=engine, **self.session_args)
 
     @contextlib.contextmanager
     def transaction(self):
@@ -81,7 +81,7 @@ class SQLAlchemyAdapter(DbAdapter):
                 self._sessions.append(session)    
             try:
                 yield session
-                session.commit
+                session.commit()
             finally:
                 self._sessions.pop()
         except (IntegrityError, UniqueViolation) as err:

@@ -1,9 +1,11 @@
 import uuid
+from typing import TYPE_CHECKING
 from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from source.app.adapter.db.model.base import Base
+
 from source.app.adapter.db.repository import SQLRepository
 
 
