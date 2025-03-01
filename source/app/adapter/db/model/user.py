@@ -4,6 +4,7 @@ from typing import Optional
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSON
 
+from source.app.adapter.db.exception import RecordNotFound
 from source.app.adapter.db.repository import SQLRepository
 from source.app.domain.user_dto import UserDTO
 from .base import Base
@@ -16,7 +17,7 @@ class UserRole(Enum):
 class User(Base):
     first_name: Mapped[str] = mapped_column(String(50), nullable=False)
     last_name: Mapped[Optional[str]] 
-    email: Mapped[str] = mapped_column(String(100), nullable=False)
+    email: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
     _password: Mapped[str] = mapped_column("password",String(255), nullable=False)
     phone: Mapped[str] = mapped_column(String(15), nullable=False)
     address: Mapped[dict]= mapped_column(JSON)
@@ -44,6 +45,12 @@ class User(Base):
 class SQLUserRepository(SQLRepository):
     model = User
     model_dto = UserDTO
+
+    def get_autheticated_user(self, email: str, password: str):
+        user = self.get_query().filter(self.model.email == email).first()
+        if not user or not user.verify_password(password):
+            return None
+        return self.model_to_dto(user)
 
 
         

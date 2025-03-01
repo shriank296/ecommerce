@@ -20,9 +20,10 @@ class CrudRouter(APIRouter):
     def __init__(
         self,
         repo_dependency: Callable,
+        role_dependency: Callable,
         repository: str,
         response_schema: Type[BaseModel],
-        methods: List[str],
+        methods_and_roles: dict,
         create_schema: Type[BaseModel],
         update_schema: Type[BaseModel],
         partial_schema: Optional[Type[BaseModel]] = None,
@@ -32,8 +33,9 @@ class CrudRouter(APIRouter):
         **kwargs: Any,
     ):
         self.repo_dependency: Callable = repo_dependency
+        self.role_dependency: Callable = role_dependency
         self.repository = repository
-        self.methods = methods or ["READ"]
+        self.methods_and_roles = methods_and_roles or [("READ",["CUSTOMER"])]
         self.response_schema: Type[BaseModel] = response_schema
         self.create_schema: Type[BaseModel] = create_schema
         self.update_schema: Type[BaseModel] = update_schema
@@ -46,44 +48,42 @@ class CrudRouter(APIRouter):
         self._setup_routes()
 
     def _setup_routes(self):
-        if "CREATE" in self.methods:
+        if "CREATE" in self.methods_and_roles:
             assert self.create_schema
             self.add_api_route(
                 "/",
                 self._create(),
                 methods = ["POST"],
-                response_model = self.response_schema,
+                response_model = self.response_schema
             )
-        if "READ" in self.methods:
+        if "READ" in self.methods_and_roles:
             self.add_api_route(
                 "/{id}",
                 self._read(),
                 methods=["GET"],
-                response_model=self.response_schema,
+                response_model=self.response_schema
             )
-            #  self.add_api_route(
-            #       "/",
-            #       self._read_multi(),
-            #       methods=["GET"],
-            #       response_model=PaginatedData
-            #  )
-        if "UPDATE" in self.methods:
+            self.add_api_route(
+                "/",
+                self._read_multi(),
+                methods=["GET"],
+                response_model=List[self.response_schema]
+            )
+        if "UPDATE" in self.methods_and_roles:
             assert self.update_schema
             self.add_api_route(
                 "/{id}",
                 self._update(),
                 methods=["PATCH"],
-                response_model=self.response_schema,
+                response_model=self.response_schema
             )         
-        if "DELETE" in self.methods:
+        if "DELETE" in self.methods_and_roles:
             #  assert self.delete_schema
             self.add_api_route(
                 "/{id}",
                 self._delete(),
-                methods=["DELETE"]
+                methods=["DELETE"],
             )     
-
-        print(f"Routes after setup: {self.routes}")    
 
     @property
     def router(self):
@@ -92,7 +92,8 @@ class CrudRouter(APIRouter):
     def _create(self) -> Callable:
         def create_record(
                 obj_in: self.create_schema, # type: ignore
-                repos: Repositories = Depends(self.repo_dependency)
+                repos: Repositories = Depends(self.repo_dependency),
+                current_user = Depends(self.role_dependency(self.methods_and_roles["CREATE"]))
         ) -> self.response_schema: # type: ignore
             try:
                 repository: Repository = getattr(repos, self.repository)
@@ -109,6 +110,7 @@ class CrudRouter(APIRouter):
         def read_record(
                 id: UUID,
                 repos: Repositories = Depends(self.repo_dependency),
+                current_user = Depends(self.role_dependency(self.methods_and_roles["READ"]))
         ) -> self.response_schema: # type: ignore
             try:
                 repository: Repository = getattr(repos, self.repository)
@@ -119,11 +121,26 @@ class CrudRouter(APIRouter):
                 return result
         return read_record
     
+    def _read_multi(self) -> Callable:
+        def read_multi(
+                repos: Repositories = Depends(self.repo_dependency),
+                current_user = Depends(self.role_dependency(self.methods_and_roles["READ"]))
+        ) -> List[self.response_schema]: # type: ignore
+            try:
+                repository: Repository = getattr(repos, self.repository)
+                result: BaseModel = repository.read_multi()
+            except RecordNotFound as e:
+                raise HTTPException(status_code=404, detail=str(e))
+            else:
+                return result
+        return read_multi
+    
     def _update(self) -> Callable:
         def update_record(
                 id: UUID,
                 obj_in: self.update_schema, # type: ignore
                 repos: Repositories = Depends(self.repo_dependency),
+                current_user = Depends(self.role_dependency(self.methods_and_roles["UPDATE"]))
         ) -> self.response_schema: # type: ignore
             try:
                 repository: Repository = getattr(repos, self.repository)
@@ -137,7 +154,8 @@ class CrudRouter(APIRouter):
     def _delete(self) -> Callable:
         def delete_record(
                 id: UUID,
-                repos: Repositories = Depends(self.repo_dependency)
+                repos: Repositories = Depends(self.repo_dependency),
+                current_user = Depends(self.methods_and_roles["DELETE"])
         ):
             repository: Repository = getattr(repos, self.repository)
             return repository.delete(id)

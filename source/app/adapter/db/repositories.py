@@ -1,5 +1,6 @@
 from typing import Optional, cast
 
+from source.app.adapter.db.model.product import SQLProductRepository
 from source.app.ports.db import DbAdapter, Repository, Repositories
 from source.app.adapter.db.model.user import SQLUserRepository
 from .sqlalchemy import SQLAlchemyAdapter
@@ -19,5 +20,9 @@ class SQLRepositories(Repositories):
     @property
     def user(self):
         return SQLUserRepository(self.db)         
+    
+    @property
+    def product(self):
+        return SQLProductRepository(self.db)
         
 

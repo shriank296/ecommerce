@@ -4,6 +4,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import Optional
 from sqlalchemy.dialects.postgresql import UUID
 
+from source.app.adapter.db.repository import SQLRepository
+from source.app.domain.product_dto import ProductDto
+
 from .base import Base
 
 class Product(Base):
@@ -18,3 +21,7 @@ class Product(Base):
     order_items = relationship("OrderItem", back_populates="product")
     cart_items = relationship("CartItem", back_populates="product", cascade="all,delete", lazy="select")
     
+
+class SQLProductRepository(SQLRepository):
+    model = Product    
+    model_dto = ProductDto

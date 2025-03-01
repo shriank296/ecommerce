@@ -67,6 +67,16 @@ class SQLRepository(Repository):
             )    
         return self.model_to_dto(entity)
     
+    def read_multi(self):
+        query = self.get_query()
+        result = query.all()
+        if not result:
+            raise RecordNotFound(
+                f"Model: {self.model.__name__}, Record not found."
+            )
+        output = [self.model_to_dto(entity) for entity in result]
+        return output
+    
     def update(self, id: UUID, obj_in: Any) -> Any:
         assert isinstance(obj_in, BaseModel)
         assert hasattr(obj_in, "id")
