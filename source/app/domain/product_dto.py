@@ -9,13 +9,14 @@ class BaseProductDto(BaseDto):
     name: str = Field(..., alias="name")
     description: str = Field(...,alias="description")
     price: float = Field(...,alias="price")
-    stock: int = Field(...,alias="stock")
-    category_id: Optional[UUID] = Field(alias="categoryId")
+    
 
 class ProductDto(BaseProductDto):
     product_id: UUID = Field(...,alias="id")
+    stock: int = Field(...,alias="stock")
+    category_id: Optional[UUID] = Field(alias="categoryId")
     created_at: datetime = Field(..., alias="createdAt")
     updated_at: datetime = Field(..., alias="updatedAt")
 
 class CreateProductDto(BaseProductDto):
-    pass    
+    pass

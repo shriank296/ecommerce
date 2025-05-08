@@ -35,7 +35,7 @@ class CrudRouter(APIRouter):
         self.repo_dependency: Callable = repo_dependency
         self.role_dependency: Callable = role_dependency
         self.repository = repository
-        self.methods_and_roles = methods_and_roles or [("READ",["CUSTOMER"])]
+        self.methods_and_roles = methods_and_roles or []
         self.response_schema: Type[BaseModel] = response_schema
         self.create_schema: Type[BaseModel] = create_schema
         self.update_schema: Type[BaseModel] = update_schema

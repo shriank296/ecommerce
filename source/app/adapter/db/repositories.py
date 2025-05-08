@@ -1,5 +1,7 @@
 from typing import Optional, cast
 
+from source.app.adapter.db.model.cart import SQLCartRepository
+from source.app.adapter.db.model.cart_item import SQLCartItemRepository
 from source.app.adapter.db.model.product import SQLProductRepository
 from source.app.ports.db import DbAdapter, Repository, Repositories
 from source.app.adapter.db.model.user import SQLUserRepository
@@ -24,5 +26,13 @@ class SQLRepositories(Repositories):
     @property
     def product(self):
         return SQLProductRepository(self.db)
+    
+    @property
+    def cart(self):
+        return SQLCartRepository(self.db)
+    
+    @property
+    def cart_item(self):
+        return SQLCartItemRepository(self.db)
         
 

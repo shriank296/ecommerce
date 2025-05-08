@@ -5,8 +5,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import UUID
 
 from source.app.adapter.db.model.base import Base
-
 from source.app.adapter.db.repository import SQLRepository
+from source.app.domain.cart_item_dto import CartItemDto, CreateCartItemDto
+from source.app.ports.db.repositories import Repositories
 
 
 class CartItem(Base):
@@ -19,3 +20,7 @@ class CartItem(Base):
 
 class SQLCartItemRepository(SQLRepository):
     model = CartItem
+    model_dto = CartItemDto
+    create_model_dto = CreateCartItemDto
+
+

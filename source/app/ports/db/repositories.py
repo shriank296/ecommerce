@@ -16,4 +16,16 @@ class Repositories(ABC):
     @property
     def user(self):
         raise NotImplementedError    
+    
+    @property
+    def product(self):
+        return NotImplementedError
+    
+    @property
+    def cart(self):
+        return NotImplementedError
+    
+    @property
+    def cart_item(self):
+        return NotImplementedError
 

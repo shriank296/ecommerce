@@ -47,7 +47,7 @@ class SQLRepository(Repository):
         db_obj = self.model(**obj_in.model_dump())
         try:
             self.db.session.add(db_obj)
-            self.db.session.commit()
+            self.db.session.flush()
         except IntegrityError as err:
             logging.warning(f"DB Integrity Error creating: {self.__class__.__name__}, er: {err}")
             self.db.rollback()
@@ -79,11 +79,11 @@ class SQLRepository(Repository):
     
     def update(self, id: UUID, obj_in: Any) -> Any:
         assert isinstance(obj_in, BaseModel)
-        assert hasattr(obj_in, "id")
+        assert hasattr(obj_in, f"{(self.model.__name__)}_id".lower())
         
         self.validate_obj(obj_in=obj_in)
 
-        if str(obj_in.id) != str(id):
+        if str(getattr(obj_in,f"{(self.model.__name__)}_id".lower())) != str(id):
             raise RecordNotFound("Unable to fetch record. ID in the path does not match id in the payload")
         
         entity = self.db.session.query(self.model).filter(self.model.id == id).first()
@@ -101,14 +101,13 @@ class SQLRepository(Repository):
             logging.warning(f"DB Integrity Error creating: {self.__class__.__name__}, er: {err}")
             self.db.rollback()
             raise DbIntegrityError(err.orig)
-        self.db.session.refresh(entity)
         return self.model_to_dto(entity)    
     
     def delete(self, id: UUID) -> bool:
         obj = self.db.session.get(self.model, id)
         if obj:
             self.db.session.delete(obj)
-            self.db.session.commit()
+            self.db.session.flush()
             return True
         return False
 

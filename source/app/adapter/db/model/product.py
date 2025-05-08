@@ -5,7 +5,7 @@ from typing import Optional
 from sqlalchemy.dialects.postgresql import UUID
 
 from source.app.adapter.db.repository import SQLRepository
-from source.app.domain.product_dto import ProductDto
+from source.app.domain.product_dto import BaseProductDto, ProductDto
 
 from .base import Base
 
@@ -25,3 +25,4 @@ class Product(Base):
 class SQLProductRepository(SQLRepository):
     model = Product    
     model_dto = ProductDto
+    cart_view_dto = BaseProductDto
