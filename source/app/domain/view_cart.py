@@ -1,8 +1,7 @@
 from source.app.domain.cart_item_dto import ViewCartDto, ViewCartItemDto
-from source.app.domain.exception import DbException, EmptyCart
+from source.app.domain.exception import DbException
 from source.app.domain.product_dto import BaseProductDto
 from source.app.ports.db.repositories import Repositories
-
 
 # def view_cart(username: str, repos: Repositories):
 #     try:
@@ -23,26 +22,29 @@ from source.app.ports.db.repositories import Repositories
 
 def view_cart(username: str, repos: Repositories):
     try:
-        values = repos.db.session.query(
-            repos.product.model.name,
-            repos.product.model.description,
-            repos.product.model.price,
-            repos.cart_item.model.quantity,
-        ).filter(
-            repos.user.model.id == repos.cart.model.user_id
-        ).filter(
-            repos.cart.model.id == repos.cart_item.model.cart_id
-        ).filter(
-            repos.cart_item.model.product_id == repos.product.model.id
-        ).filter(
-            repos.user.model.email == username
-        ).all()
-        # breakpoint()
+        values = (
+            repos.db.session.query(
+                repos.product.model.name,
+                repos.product.model.description,
+                repos.product.model.price,
+                repos.cart_item.model.quantity,
+            )
+            .filter(repos.user.model.id == repos.cart.model.user_id)
+            .filter(repos.cart.model.id == repos.cart_item.model.cart_id)
+            .filter(repos.cart_item.model.product_id == repos.product.model.id)
+            .filter(repos.user.model.email == username)
+            .all()
+        )
     except DbException:
         raise
     return ViewCartDto(
-        items = [ViewCartItemDto(product = BaseProductDto(name=value[0], description=value[1], price=value[2]), quantity=value[3]) for value in values]
-        )
-
-    
-
+        items=[
+            ViewCartItemDto(
+                product=BaseProductDto(
+                    name=value[0], description=value[1], price=value[2]
+                ),
+                quantity=value[3],
+            )
+            for value in values
+        ]
+    )

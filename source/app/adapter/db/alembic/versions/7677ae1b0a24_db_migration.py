@@ -5,26 +5,22 @@ Revises: 566742e54f4e
 Create Date: 2025-02-18 04:14:10.208046
 
 """
-from pathlib import Path
-from typing import Sequence, Union, Optional
-import os
 
-import uuid
 import csv
+import uuid
+from pathlib import Path
+from typing import Sequence, Union
+
 from alembic import op
-import sqlalchemy as sa
-from sqlalchemy.orm import declarative_base, Mapped, mapped_column, relationship, Session
-from sqlalchemy import DateTime, String, func, ForeignKey, Text, DECIMAL, Integer
-from datetime import datetime
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.orm import Session, declarative_base
 
 from source.app.adapter.db.model.category import Category
 
 Base = declarative_base()
 
 # revision identifiers, used by Alembic.
-revision: str = '7677ae1b0a24'
-down_revision: Union[str, None] = '566742e54f4e'
+revision: str = "7677ae1b0a24"
+down_revision: Union[str, None] = "566742e54f4e"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -38,29 +34,28 @@ def upgrade() -> None:
 
     name_map = {}
 
-    with open(categories_file_path, 'r') as file:
+    with open(categories_file_path, "r") as file:
         reader = csv.DictReader(file)
         for row in reader:
             name_map[row["name"]] = uuid.uuid4()
 
             category = Category(
-                id = name_map[row["name"]],
-                name = row["name"],
-                parent_category_id = None
+                id=name_map[row["name"]], name=row["name"], parent_category_id=None
             )
 
             session.add(category)
         session.commit()
 
-    with open(categories_file_path, 'r') as file:
+    with open(categories_file_path, "r") as file:
         reader = csv.DictReader(file)
         for row in reader:
             if row["parent"]:
-                category = session.query(Category).filter_by(id = name_map[row["name"]]).first()
+                category = (
+                    session.query(Category).filter_by(id=name_map[row["name"]]).first()
+                )
                 category.parent_category_id = name_map[row["parent"]]
         session.commit()
-    session.close()            
-
+    session.close()
 
     # ### end Alembic commands ###
 

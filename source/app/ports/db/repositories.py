@@ -1,7 +1,8 @@
 from abc import ABC
-from .adapter import DbAdapter
-from .repository import Repository
 from typing import Optional
+
+from .adapter import DbAdapter
+
 
 class Repositories(ABC):
     def __init__(self, db: Optional[DbAdapter]):
@@ -15,17 +16,20 @@ class Repositories(ABC):
 
     @property
     def user(self):
-        raise NotImplementedError    
-    
+        raise NotImplementedError
+
     @property
     def product(self):
         return NotImplementedError
-    
+
     @property
     def cart(self):
         return NotImplementedError
-    
+
     @property
     def cart_item(self):
         return NotImplementedError
 
+    @property
+    def order(self):
+        return NotImplementedError

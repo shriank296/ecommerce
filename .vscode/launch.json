@@ -1,0 +1,21 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "name": "FastAPI (Uvicorn)",
+        "type": "python",
+        "request": "launch",
+        "module": "uvicorn",
+        "args": [
+          "source.app.adapter.fastapi.main:app",    // ← module path: source/myapp.py with `app = FastAPI()`
+          "--reload"
+        ],
+        "jinja": true,
+        "justMyCode": true,
+        "env": {
+        "DB_URL": "postgresql+psycopg2://someone:example@localhost:5432/ecommerce",
+        "SECRET_KEY": "b369f3fae2281f2ceeaa271e8b694d17b72a2d45a7d586c3addd5a6fba7a76f3"
+      }
+      }
+    ]
+  }

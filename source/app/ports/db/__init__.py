@@ -1,3 +1,3 @@
 from .adapter import DbAdapter
-from .repository import Repository, PaginatedData
 from .repositories import Repositories
+from .repository import PaginatedData, Repository

@@ -5,23 +5,22 @@ Revises: 7677ae1b0a24
 Create Date: 2025-02-22 05:19:01.151332
 
 """
-from typing import Sequence, Union
 
+import csv
 import uuid
 from pathlib import Path
-import csv
+from typing import Sequence, Union
+
 from alembic import op
-import sqlalchemy as sa
-from sqlalchemy.orm import Session
 from sqlalchemy import Select
+from sqlalchemy.orm import Session
 
 from source.app.adapter.db.model.category import Category
 from source.app.adapter.db.model.product import Product
 
-
 # revision identifiers, used by Alembic.
-revision: str = 'ed004e70b96d'
-down_revision: Union[str, None] = '7677ae1b0a24'
+revision: str = "ed004e70b96d"
+down_revision: Union[str, None] = "7677ae1b0a24"
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
@@ -42,20 +41,16 @@ def upgrade() -> None:
         reader = csv.DictReader(file)
         for row in reader:
             product = Product(
-                id = uuid.uuid4(),
-                name = row["name"],
-                description = row["description"],
-                price = row["price"],
-                stock = row["stock"],
-                category_id = category_dict.get(row["category"], None)
+                id=uuid.uuid4(),
+                name=row["name"],
+                description=row["description"],
+                price=row["price"],
+                stock=row["stock"],
+                category_id=category_dict.get(row["category"], None),
             )
             session.add(product)
         session.commit()
-    session.close()        
-
-
-
-
+    session.close()
 
 
 def downgrade() -> None:
