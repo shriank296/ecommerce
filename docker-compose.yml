@@ -28,5 +28,34 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data  
 
+  sbemulator:
+    container_name: servicebus-emulator
+    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
+    environment:
+      SQL_SERVER: mssql
+      MSSQL_SA_PASSWORD: ezikuel
+      ACCEPT_EULA: "Y"
+    ports:
+      - "5672:5672"   # AMQP
+      - "5300:5300"   # management API
+    volumes:
+      - ./config.json:/ServiceBus_Emulator/ConfigFiles/Config.json
+    depends_on:
+      - mssql
+    networks:
+      - sb-network
+
+  mssql:
+    container_name: mssql
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: ezikuel
+    networks:
+      - sb-network        
+
 volumes:
   postgres-data:
+
+networks:
+  sb-network:
